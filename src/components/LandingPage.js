@@ -1,27 +1,18 @@
-import "./App.css";
-import bgImage from "./ai-generated-inventory-logistic-warehouse-background-photo.jpg";
+import "../App.css";
+import bgImage from "../ai-generated-inventory-logistic-warehouse-background-photo.jpg";
 import { useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
-import AdminPanel from "./components/admin/AdminPanel";
-import StaffDashboard from "./components/Staff/StaffDashboard";
-import SupplierDashboard from "./components/Supplier/SupplierDashboard";
-import StaffProducts from "./components/Staff/StaffProducts";
-import  StockInward from "./components/Staff/StockInward";
-import  StockOutward from "./components/Staff/StockOutward";
-import  StockHistory from "./components/Staff/StockHistory";
+import { useNavigate } from "react-router-dom";
 
-/* ======================
-   LANDING PAGE
-====================== */
 function LandingPage() {
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
 
-  // ✅ ROLE-BASED LOGIN (FINAL)
+  // ✅ STRICT ROLE-BASED LOGIN
   const handleLogin = () => {
     if (!username || !password) {
       alert("Please enter username and password");
@@ -32,34 +23,39 @@ function LandingPage() {
     localStorage.clear();
 
     // ✅ ADMIN
-    if (username === "admin" && password === "admin123") {
-      localStorage.setItem("user", "admin");
-      localStorage.setItem("role", "admin");
-      setShowLogin(false);
-      navigate("/admin");
-      return;
-    }
+    // ADMIN
+if (username === "admin" && password === "admin123") {
+  localStorage.clear();
+  localStorage.setItem("user", "admin");
+  localStorage.setItem("role", "admin");
+  navigate("/admin");
+  return;
+}
 
-    // ✅ STAFF
-    if (username === "staff" && password === "staff123") {
-      localStorage.setItem("user", "staff");
-      localStorage.setItem("role", "staff");
-      setShowLogin(false);
-      navigate("/staff");
-      return;
-    }
+// STAFF
+if (username === "staff" && password === "staff123") {
+  localStorage.clear();
+  localStorage.setItem("user", "staff");
+  localStorage.setItem("role", "staff");
+  navigate("/staff");
+  return;
+}
 
-    // ✅ SUPPLIER
-    if (username === "supplier" && password === "supplier123") {
-      localStorage.setItem("user", "supplier");
-      localStorage.setItem("role", "supplier");
-      setShowLogin(false);
-      navigate("/supplier");
-      return;
-    }
+// SUPPLIER
+if (username === "supplier" && password === "supplier123") {
+  localStorage.clear();
+  localStorage.setItem("user", "supplier");
+  localStorage.setItem("role", "supplier");
+  navigate("/supplier");
+  return;
+}
 
-    // ❌ INVALID
+    // ❌ BLOCK EVERYTHING ELSE
     alert("Invalid username or password");
+  };
+
+  const handleRegister = () => {
+    alert("Registration disabled. Use provided credentials only.");
   };
 
   return (
@@ -74,7 +70,11 @@ function LandingPage() {
         <div className="nav-auth">
           <button
             className="auth-btn login-btn"
-            onClick={() => setShowLogin(true)}
+            onClick={() => {
+              setUsername("");
+              setPassword("");
+              setShowLogin(true);
+            }}
           >
             Login
           </button>
@@ -92,8 +92,11 @@ function LandingPage() {
       <div className="hero-overlay">
         <div className="hero-container">
           <div className="hero-left">
-            <h1>Boxly</h1>
-            <p>Smart warehouse & logistics platform</p>
+            <h1 className="boxly-animate">Boxly</h1>
+            <p>
+              Smart logistics and supply chain solutions delivering seamless
+              fulfillment services with speed, reliability, and efficiency.
+            </p>
           </div>
         </div>
       </div>
@@ -137,7 +140,7 @@ function LandingPage() {
         <div className="modal-overlay" onClick={() => setShowRegister(false)}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <h2>Register</h2>
-            <p style={{ fontSize: "14px" }}>
+            <p style={{ fontSize: "14px", color: "#666" }}>
               Registration is disabled.
               <br />
               Use provided credentials only.
@@ -156,22 +159,4 @@ function LandingPage() {
   );
 }
 
-/* ======================
-   ROUTES
-====================== */
-function App() {
-  return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/admin/*" element={<AdminPanel />} />
-      <Route path="/staff" element={<StaffDashboard />} />
-      <Route path="/staff/products" element={<StaffProducts />} />
-      <Route path="/staff/inward" element={<StockInward />} />
-      <Route path="/staff/outward" element={<StockOutward />} />
-    <Route path="/staff/history" element={<StockHistory />} />
-      <Route path="/supplier" element={<SupplierDashboard />} />
-    </Routes>
-  );
-}
-
-export default App;
+export default LandingPage;
