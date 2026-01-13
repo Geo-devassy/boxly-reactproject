@@ -1,175 +1,52 @@
 import "./App.css";
-import bgImage from "./ai-generated-inventory-logistic-warehouse-background-photo.jpg";
-import { useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom"; // Added Navigate for the redirect
+
+/* ADMIN */
 import AdminPanel from "./components/admin/AdminPanel";
+
+/* STAFF */
 import StaffDashboard from "./components/Staff/StaffDashboard";
-import SupplierDashboard from "./components/Supplier/SupplierDashboard";
 import StaffProducts from "./components/Staff/StaffProducts";
-import  StockInward from "./components/Staff/StockInward";
-import  StockOutward from "./components/Staff/StockOutward";
-import  StockHistory from "./components/Staff/StockHistory";
+import StockInward from "./components/Staff/StockInward";
+import StockOutward from "./components/Staff/StockOutward";
+import StockHistory from "./components/Staff/StockHistory";
 
-/* ======================
-   LANDING PAGE
-====================== */
-function LandingPage() {
-  const [showLogin, setShowLogin] = useState(false);
-  const [showRegister, setShowRegister] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+/* SUPPLIER */
+import SupplierDashboard from "./components/Supplier/SupplierDashboard";
+import SupplierHome from "./components/Supplier/SupplierHome";
+import SupplierOrders from "./components/Supplier/SupplierOrders";
+import SupplierDeliveries from "./components/Supplier/SupplierDeliveries";
+import SupplierStockRequests from "./components/Supplier/SupplierStockRequests";
 
-  const navigate = useNavigate();
+/* ✅ REAL LANDING PAGE */
+import LandingPage from "./components/LandingPage";
 
-  // ✅ ROLE-BASED LOGIN (FINAL)
-  const handleLogin = () => {
-    if (!username || !password) {
-      alert("Please enter username and password");
-      return;
-    }
-
-    // 🔥 CLEAR OLD SESSION
-    localStorage.clear();
-
-    // ✅ ADMIN
-    if (username === "admin" && password === "admin123") {
-      localStorage.setItem("user", "admin");
-      localStorage.setItem("role", "admin");
-      setShowLogin(false);
-      navigate("/admin");
-      return;
-    }
-
-    // ✅ STAFF
-    if (username === "staff" && password === "staff123") {
-      localStorage.setItem("user", "staff");
-      localStorage.setItem("role", "staff");
-      setShowLogin(false);
-      navigate("/staff");
-      return;
-    }
-
-    // ✅ SUPPLIER
-    if (username === "supplier" && password === "supplier123") {
-      localStorage.setItem("user", "supplier");
-      localStorage.setItem("role", "supplier");
-      setShowLogin(false);
-      navigate("/supplier");
-      return;
-    }
-
-    // ❌ INVALID
-    alert("Invalid username or password");
-  };
-
-  return (
-    <div
-      className="app-background"
-      style={{ backgroundImage: `url(${bgImage})` }}
-    >
-      {/* NAVBAR */}
-      <div className="top-nav">
-        <h2 className="logo">Boxly</h2>
-
-        <div className="nav-auth">
-          <button
-            className="auth-btn login-btn"
-            onClick={() => setShowLogin(true)}
-          >
-            Login
-          </button>
-
-          <button
-            className="auth-btn register-btn"
-            onClick={() => setShowRegister(true)}
-          >
-            Register
-          </button>
-        </div>
-      </div>
-
-      {/* HERO */}
-      <div className="hero-overlay">
-        <div className="hero-container">
-          <div className="hero-left">
-            <h1>Boxly</h1>
-            <p>Smart warehouse & logistics platform</p>
-          </div>
-        </div>
-      </div>
-
-      {/* LOGIN MODAL */}
-      {showLogin && (
-        <div className="modal-overlay" onClick={() => setShowLogin(false)}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <h2>Login</h2>
-
-            <input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-
-            <button className="primary-btn" onClick={handleLogin}>
-              Login
-            </button>
-
-            <button
-              className="close-btn"
-              onClick={() => setShowLogin(false)}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* REGISTER MODAL */}
-      {showRegister && (
-        <div className="modal-overlay" onClick={() => setShowRegister(false)}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <h2>Register</h2>
-            <p style={{ fontSize: "14px" }}>
-              Registration is disabled.
-              <br />
-              Use provided credentials only.
-            </p>
-
-            <button
-              className="close-btn"
-              onClick={() => setShowRegister(false)}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ======================
-   ROUTES
-====================== */
 function App() {
   return (
     <Routes>
+      {/* LANDING */}
       <Route path="/" element={<LandingPage />} />
+
+      {/* ADMIN */}
       <Route path="/admin/*" element={<AdminPanel />} />
-      <Route path="/staff" element={<StaffDashboard />} />
-      <Route path="/staff/products" element={<StaffProducts />} />
-      <Route path="/staff/inward" element={<StockInward />} />
-      <Route path="/staff/outward" element={<StockOutward />} />
-    <Route path="/staff/history" element={<StockHistory />} />
-      <Route path="/supplier" element={<SupplierDashboard />} />
+
+      {/* STAFF - FIXED NESTING */}
+      <Route path="/staff" element={<StaffDashboard />}>
+        {/* Redirect /staff to /staff/products so the side panel stays visible */}
+        <Route index element={<Navigate to="/staff/products" replace />} />
+        <Route path="products" element={<StaffProducts />} />
+        <Route path="inward" element={<StockInward />} />
+        <Route path="outward" element={<StockOutward />} />
+        <Route path="history" element={<StockHistory />} />
+      </Route>
+
+      {/* SUPPLIER */}
+      <Route path="/supplier" element={<SupplierDashboard />}>
+        <Route index element={<SupplierHome />} />
+        <Route path="orders" element={<SupplierOrders />} />
+        <Route path="deliveries" element={<SupplierDeliveries />} />
+        <Route path="stock-requests" element={<SupplierStockRequests />} />
+      </Route>
     </Routes>
   );
 }

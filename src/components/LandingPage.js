@@ -2,60 +2,69 @@ import "../App.css";
 import bgImage from "../ai-generated-inventory-logistic-warehouse-background-photo.jpg";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Loader from "./Loader";
 
 function LandingPage() {
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  // ✅ STRICT ROLE-BASED LOGIN
   const handleLogin = () => {
     if (!username || !password) {
       alert("Please enter username and password");
       return;
     }
 
-    // 🔥 CLEAR OLD SESSION
-    localStorage.clear();
+    setLoading(true);
 
-    // ✅ ADMIN
-    // ADMIN
-if (username === "admin" && password === "admin123") {
-  localStorage.clear();
-  localStorage.setItem("user", "admin");
-  localStorage.setItem("role", "admin");
-  navigate("/admin");
-  return;
-}
+    setTimeout(() => {
+      localStorage.removeItem("user");
+      localStorage.removeItem("role");
 
-// STAFF
-if (username === "staff" && password === "staff123") {
-  localStorage.clear();
-  localStorage.setItem("user", "staff");
-  localStorage.setItem("role", "staff");
-  navigate("/staff");
-  return;
-}
+      if (username === "admin" && password === "admin123") {
+        localStorage.setItem("user", "admin");
+        localStorage.setItem("role", "admin");
+        navigate("/admin");
+        return;
+      }
 
-// SUPPLIER
-if (username === "supplier" && password === "supplier123") {
-  localStorage.clear();
-  localStorage.setItem("user", "supplier");
-  localStorage.setItem("role", "supplier");
-  navigate("/supplier");
-  return;
-}
+      if (username === "staff" && password === "staff123") {
+        localStorage.setItem("user", "staff");
+        localStorage.setItem("role", "staff");
+        navigate("/staff");
+        return;
+      }
 
-    // ❌ BLOCK EVERYTHING ELSE
-    alert("Invalid username or password");
-  };
+      if (username === "supplier" && password === "supplier123") {
+        localStorage.setItem("user", "supplier");
+        localStorage.setItem("role", "supplier");
+        navigate("/supplier");
+        return;
+      }
 
-  const handleRegister = () => {
-    alert("Registration disabled. Use provided credentials only.");
+      let users = [];
+      try {
+        users = JSON.parse(localStorage.getItem("users")) || [];
+      } catch {}
+
+      const foundUser = users.find(
+        (u) => u.username === username && u.password === password
+      );
+
+      if (foundUser) {
+        localStorage.setItem("user", foundUser.username);
+        localStorage.setItem("role", foundUser.role);
+        navigate(`/${foundUser.role}`);
+        return;
+      }
+
+      setLoading(false);
+      alert("Invalid username or password");
+    }, 800);
   };
 
   return (
@@ -121,13 +130,18 @@ if (username === "supplier" && password === "supplier123") {
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            <button className="primary-btn" onClick={handleLogin}>
-              Login
+            <button
+              className="primary-btn"
+              onClick={handleLogin}
+              disabled={loading}
+            >
+              {loading ? "Logging in..." : "Login"}
             </button>
 
             <button
               className="close-btn"
               onClick={() => setShowLogin(false)}
+              disabled={loading}
             >
               Close
             </button>
@@ -141,9 +155,9 @@ if (username === "supplier" && password === "supplier123") {
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <h2>Register</h2>
             <p style={{ fontSize: "14px", color: "#666" }}>
-              Registration is disabled.
+              Registration disabled.
               <br />
-              Use provided credentials only.
+              Contact admin to create an account.
             </p>
 
             <button
@@ -155,6 +169,9 @@ if (username === "supplier" && password === "supplier123") {
           </div>
         </div>
       )}
+
+      {/* LOADER */}
+      {loading && <Loader />}
     </div>
   );
 }
